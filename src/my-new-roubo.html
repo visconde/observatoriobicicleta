@@ -1,0 +1,41 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="my-new-roubo">
+    <template>
+        <style>
+            :host {
+                margin: 0;2
+                padding: 0;
+            }
+            paper-card {
+                position: absolute;
+                top: 70px;
+                right: 10px;
+                z-index: 1;
+            }
+        </style>
+
+        <paper-card heading="Novo Roubo" elevation="2" hidden$="{{!showAddForm}}">
+
+            <paper-icon-item>
+                <iron-icon icon="search" item-icon></iron-icon>
+                <paper-input label="Titulo" value="{{roubo.title}}"></paper-input>
+            </paper-icon-item>
+            <paper-icon-item>
+                <iron-icon icon="search" item-icon></iron-icon>
+
+                <paper-input label="Marca da Bicicleeta" value="{{roubo.brand}}"></paper-input>
+            </paper-icon-item>
+            <paper-button raised on-tap="chooseLocation">
+                <iron-icon icon="search" item-icon></iron-icon>
+                Escolher Local</paper-button>
+            <paper-button raised on-tap="post">OK</paper-button>
+        </paper-card>
+    </template>
+
+    <script>
+        Polymer({
+          is: 'my-new-roubo'
+        });
+    </script>
+</dom-module>

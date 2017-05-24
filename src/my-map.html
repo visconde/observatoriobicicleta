@@ -1,0 +1,157 @@
+359xp001-hvhbtt<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="my-app-data.html">
+<dom-module id="my-map">
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+                height: 100%
+            }
+
+
+
+            .card-header {
+                @apply(--paper-font-headline);
+            }
+
+            paper-fab {
+                position: absolute;
+                bottom: 25px;
+                right: 50px;
+                z-index: 1;
+
+            }
+        </style>
+
+        <iron-localstorage name="user-storage" value="{{storedUser}}"
+                           on-iron-localstorage-load="initStoredUser"></iron-localstorage>
+
+        <app-data key="userData" data="{{storedUser}}"></app-data>
+
+        <iron-ajax id="roubos" url="http://localhost:3000/roubos" handle-as="json"
+                   on-response="handleResponse"></iron-ajax>
+
+        <google-map id="map" fit-to-marker api-key="AIzaSyCwW657WL_3MypeDDaV5yAA6iGDNa8Vv0o" click-events>
+            <template is="dom-if" if="[[addingNew]]">
+            <google-map-marker id="newMarker" latitude="{{newLat}}" longitude="{{newLong}}"
+                               draggable="true"></google-map-marker>:
+            </template>
+
+            <template is="dom-repeat" items="{{roubos}}" as="roubo">
+                <google-map-marker latitude="[[_getLat(roubo)]]" longitude="[[_getLong(roubo)]]"
+                                   draggable="false"></google-map-marker>
+            </template>
+        </google-map>
+
+
+        <paper-fab icon="add" on-tap="_shownewform"></paper-fab>
+        <template is="dom-if" if="[[showAddForm]]">
+            <my-new-roubo></my-new-roubo>
+         <!--   <paper-card heading="Novo Roubo" elevation="2" hidden$="{{!showAddForm}}">
+
+                <paper-icon-item>
+                    <iron-icon icon="search" item-icon></iron-icon>
+                    <paper-input label="Titulo" value="{{roubo.title}}"></paper-input>
+                </paper-icon-item>
+                <paper-icon-item>
+                    <iron-icon icon="search" item-icon></iron-icon>
+
+                    <paper-input label="Marca da Bicicleeta" value="{{roubo.brand}}"></paper-input>
+                </paper-icon-item>
+                <paper-button raised on-tap="chooseLocation">
+                    <iron-icon icon="search" item-icon></iron-icon>
+                    Escolher Local</paper-button>
+                <paper-button raised on-tap="post">OK</paper-button>
+            </paper-card>-->
+        </template>
+    </template>
+
+    <script>
+      Polymer({
+        is: 'my-map',
+        properties: {
+          roubo: {
+            type: Object,
+            value: {}
+          },
+          newLat: {
+            value: 1.0
+          },
+          newLong: {
+            value: 1.0
+          }
+        },
+        ready: function () {
+          this.$.roubos.generateRequest();
+
+        },
+        chooseLocation: function () {
+          this.$.map.addEventListener('google-map-click', function (e, d, s) {
+            this.addingNew = true;
+            this.newLat = this.$.map.latitude;
+            this.newLong = this.$.map.longitude;
+
+          }.bind(this));
+
+        },
+
+        post: function () {
+          this.roubo.loc = [];
+          this.roubo.loc[0] = this.newLat;
+          this.roubo.loc[1] = this.newLong;
+
+          this.$.roubos.method = "POST";
+          this.$.roubos.contentType = "application/json";
+          this.$.roubos.body = this.roubo;
+          this.$.roubos.headers['Authorization'] = 'Bearer ' + this.storedUser.token;
+          this.$.roubos.generateRequest();
+
+        },
+
+        _stringifyJSONObject: function (input) {
+          var result = input;
+          if (input !== null) {
+            Object.keys(input).forEach(function (key) {
+              if (typeof input[key] === "string") {
+                result[key] = input[key];
+              } else {
+                result[key] = JSON.stringify(input[key]);
+              }
+            });
+          }
+          return result;
+        },
+
+        _getLong: function (roubo) {
+
+          return roubo && roubo.loc ? roubo.loc[1] : undefined;
+        }, _getLat: function (roubo) {
+          return roubo && roubo.loc ? roubo.loc[0] : undefined
+        },
+
+        _shownewform: function () {
+          console.log("asdasdasd");
+          this.showAddForm = true;
+        },
+
+        handleResponse: function (data) {
+          this.roubos = data.detail.response;
+          console.log(data.detail.response);
+        }
+
+      })
+      ;
+    </script>
+</dom-module>

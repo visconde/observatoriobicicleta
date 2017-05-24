@@ -1,0 +1,41 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="my-app-data.html">>
+<link rel="import" href="my-logout.html">>
+<dom-module id="my-toolbar">
+    <template>
+        <style>
+            :host {
+                margin: 0;
+                padding: 0;
+            }
+            app-header .greeting,
+            app-header a {
+                color: #fff;
+                font-size: 13px;
+            }
+            app-header .greeting {
+                border-right: 1px solid rgba(255,255,255,.5);
+                display: inline-block;
+                padding-right: 6px;
+            }
+
+        </style>
+        <iron-localstorage name="user-storage" value="{{storedUser}}"></iron-localstorage>
+        <my-app-data key="userData" data="{{storedUser}}"></my-app-data>
+
+        <a name="register-login" href="/register-login" hidden$="[[storedUser.loggedin]]">Log In</a>
+        <div hidden$="[[!storedUser.loggedin]]">
+            <span class="greeting">Hi [[storedUser.name]]!</span>
+            <my-logout stored-user="{{storedUser}}" link></my-logout>
+        </div>
+    </template>
+
+    <script>
+        (function () {
+            Polymer({
+                is: 'my-toolbar'
+            });
+        }());
+    </script>
+</dom-module>
